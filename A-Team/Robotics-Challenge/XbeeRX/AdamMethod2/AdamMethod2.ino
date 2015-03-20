@@ -18,18 +18,20 @@ void setup() {
 void loop() {
   //Retrieve Samples packets and store them Heading/RSSI Pairs in seperate arrays
   Retrieve();
-  int finalHeading = ProcessData();
+
   count++;
   
-  if (count ==30){
+  if (count ==50){
     for (int i = 0; i< Samples; i ++)
     {
-       RSSIArray[i] = (RSSIArray[(i+2)%180]+RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180]+RSSIArray[(i-2+180)%180])/5; 
+       RSSIArray[i] = RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3; 
     }
     count =0;
-   // Serial.println("AVERAGED");
+    //Serial.println("AVERAGED");
+    int finalHeading = ProcessData();
+    Serial.println(finalHeading);
   }
- // Serial.println(finalHeading);
+ 
 }
 
 
@@ -38,7 +40,8 @@ void loop() {
 /////////////////////////////////////////////////////
 /////////////////////////////////////////////////////
 
-
+//Initialize Headings
+//Heading array not even necessary
 void Initial(){
   for (int i = 0; i< Samples; i ++)
   {
@@ -58,11 +61,15 @@ void Retrieve(){
     if (xbee.getResponse().getApiId() == RX_16_RESPONSE) 
     {
       xbee.getResponse().getRx16Response(rx16);
-      if (rx16.getData(0)>=0 || rx16.getData(0)<=179){
-        RSSIArray[rx16.getData(0)] = (RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3; 
-        HeadingArray[rx16.getData(0)] = rx16.getData(0); 
-        //Serial.println(HeadingArray[i]);
-        //Serial.println(RSSIArray[i]);
+     
+      for (int i = Samples-1; i>0; i--)
+      {
+        if (rx16.getData(0)>=0 && rx16.getData(0)<=179){
+          if (abs(RSSIArray[i]-RSSIArray[(i+1)%180])>5 && abs(RSSIArray[i]-RSSIArray[(i-1+180)%180])>5){
+            RSSIArray[i] = (RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3; 
+          }
+          else{RSSIArray[i] = (RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3;}
+        }
       }
     }
   }
