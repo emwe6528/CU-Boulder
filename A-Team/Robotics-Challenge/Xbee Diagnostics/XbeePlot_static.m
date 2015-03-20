@@ -1,5 +1,5 @@
 
-function [RSSI, Heading] = XbeePlot_static(SerialPort,Samples);
+function [RSSI, Heading] = XbeePlot(SerialPort,Samples);
 
 % Time interval between each input.
 TimeInterval=0.03;
@@ -56,9 +56,8 @@ try
 % Will execute Samples amount of times.
 while ~isequal(count,Samples+1)
     %%Serial data accessing 
-    Hindex = fscanf(s,'%f');
-    Heading(Hindex) = Hindex;
-    RSSI(Hindex) = fscanf(s,'%f');
+    Heading(count) = fscanf(s,'%f');
+    RSSI(count) = fscanf(s,'%f');
     
     %%data pair is plotted
     set(plotHandle,'YData',RSSI,'XData',Heading);
@@ -80,7 +79,53 @@ end
 [Y, I] = max(RSSI);
 fprintf('\nMaximum RSSI and Heading: %d at %d degrees\n', max(RSSI), Heading(I))
     
+%% Average Curve
+% Takes the average of RSSI values per heading and then averages them
+% with the adjecent headings to make a smoother curve.
 
+AverageHeading = 0;
+AverageRSSI = 0;
+
+% Take the average of all RSSI values that correspond to each Heading
+counter = 1;
+for i = 1:180;
+    A = Heading == i;
+    if (any(A(:) > 0)) ;
+        AverageHeading(counter) = i;
+        AverageRSSI(counter) = sum(RSSI(A))/size(RSSI(A),2);
+        counter = counter + 1;
+    end
+end
+
+% Take the averaged RSSI values and average them again with the RSSI values 
+% of the two adjacent Headings. Provides a smoother curve.
+Limit = size(AverageHeading, 2);
+lowLimit = (Limit + 1) - rng;
+highLimit = 1 + rng;
+for i = 1:Limit
+    
+    if (lowLimit == Limit +1)
+        lowLimit = lowLimit-Limit;
+    end
+    if (highLimit == Limit + 1)
+        highLimit = highLimit-Limit;
+    end
+    
+    % Makes adjustment to be able to average end of the arrays
+    if (lowLimit>highLimit)
+        AverageRSSI(i) = (sum(AverageRSSI(lowLimit:Limit))+sum(AverageRSSI(1:highLimit)))/(rng*2+1);
+    end
+    % Averages values in the middle of the array
+    if (lowLimit<highLimit)
+        AverageRSSI(i) = sum(AverageRSSI(lowLimit:highLimit))/(rng*2+1);
+    end
+    
+    lowLimit = lowLimit + 1;
+    highLimit = highLimit +1;
+end
+
+% Plot the finished product.
+plot(AverageHeading,AverageRSSI,'o-');
 
 
 %% Clean up the serial port

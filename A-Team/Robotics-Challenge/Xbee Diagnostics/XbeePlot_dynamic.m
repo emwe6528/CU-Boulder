@@ -1,5 +1,5 @@
 
-function [RSSI, Heading] = XbeePlot(SerialPort,Samples);
+function [RSSI, Heading] = XbeePlot_Dynamics(SerialPort,Samples);
 
 % Time interval between each input.
 TimeInterval=0.03;
@@ -29,6 +29,8 @@ axesHandle = axes('Parent',figureHandle,...
 hold on;
 
 plotHandle = plot(axesHandle,RSSI,Heading, 'r.');
+plotHandle2 = plot(axesHandle,RSSI,Heading, 'bo');
+
 xlim(axesHandle,[min(0) max(180)]);
 
 % Create xlabel
@@ -54,15 +56,23 @@ count = 1;
 try
     
 % Will execute Samples amount of times.
+
 while ~isequal(count,Samples+1)
     %%Serial data accessing 
-    Heading(count) = fscanf(s,'%f');
-    RSSI(count) = fscanf(s,'%f');
-    
+    Hindex = fscanf(s,'%f')+1;
+    Heading(Hindex) = Hindex;
+    RSSI(Hindex) = fscanf(s,'%f');
+    Heading2(Hindex) = Hindex;
+        RSSI2(Hindex) = fscanf(s,'%f');
+        
     %%data pair is plotted
     set(plotHandle,'YData',RSSI,'XData',Heading);
-    set(figureHandle,'Visible','on');
-    
+        set(figureHandle,'Visible','on');
+            set(plotHandle2,'YData',RSSI2,'XData',Heading);
+        set(figureHandle,'Visible','on');
+        
+%     set(plot(axesHandle,RSSI2,Heading2+180, 'b.'),'YData',RSSI2,'XData',Heading2+180);     
+%     set(figureHandle,'Visible','on');
     %%small pause to allow next transmission
     pause(TimeInterval);
     count = count +1;
@@ -79,53 +89,7 @@ end
 [Y, I] = max(RSSI);
 fprintf('\nMaximum RSSI and Heading: %d at %d degrees\n', max(RSSI), Heading(I))
     
-%% Average Curve
-% Takes the average of RSSI values per heading and then averages them
-% with the adjecent headings to make a smoother curve.
 
-AverageHeading = 0;
-AverageRSSI = 0;
-
-% Take the average of all RSSI values that correspond to each Heading
-counter = 1;
-for i = 1:180;
-    A = Heading == i;
-    if (any(A(:) > 0)) ;
-        AverageHeading(counter) = i;
-        AverageRSSI(counter) = sum(RSSI(A))/size(RSSI(A),2);
-        counter = counter + 1;
-    end
-end
-
-% Take the averaged RSSI values and average them again with the RSSI values 
-% of the two adjacent Headings. Provides a smoother curve.
-Limit = size(AverageHeading, 2);
-lowLimit = (Limit + 1) - rng;
-highLimit = 1 + rng;
-for i = 1:Limit
-    
-    if (lowLimit == Limit +1)
-        lowLimit = lowLimit-Limit;
-    end
-    if (highLimit == Limit + 1)
-        highLimit = highLimit-Limit;
-    end
-    
-    % Makes adjustment to be able to average end of the arrays
-    if (lowLimit>highLimit)
-        AverageRSSI(i) = (sum(AverageRSSI(lowLimit:Limit))+sum(AverageRSSI(1:highLimit)))/(rng*2+1);
-    end
-    % Averages values in the middle of the array
-    if (lowLimit<highLimit)
-        AverageRSSI(i) = sum(AverageRSSI(lowLimit:highLimit))/(rng*2+1);
-    end
-    
-    lowLimit = lowLimit + 1;
-    highLimit = highLimit +1;
-end
-
-% Plot the finished product.
-plot(AverageHeading,AverageRSSI,'o-');
 
 
 %% Clean up the serial port
