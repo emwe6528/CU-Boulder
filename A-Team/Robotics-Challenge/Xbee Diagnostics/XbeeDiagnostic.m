@@ -29,7 +29,7 @@ SerialPort = input('\nWhat is your Serial Port? ', 's');
 Samples = input('\nHow many samples would you like to take? ');
 pause(5);
 %Retreive arrays of length Samples for RSSI and Heading
-[RSSI, Heading] = XbeePlot_Dynamics(SerialPort, Samples);
+[RSSI, Heading] = XbeePlot_Dynamic(SerialPort, Samples);
 
 %Cleanup Variables
 clearvars SerialPort Samples;

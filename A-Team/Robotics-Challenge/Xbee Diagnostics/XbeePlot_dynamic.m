@@ -1,5 +1,5 @@
 
-function [RSSI, Heading] = XbeePlot_Dynamics(SerialPort,Samples);
+function [RSSI, Heading] = XbeePlot_Dynamic(SerialPort,Samples);
 
 % Time interval between each input.
 TimeInterval=0.03;
@@ -59,11 +59,11 @@ try
 
 while ~isequal(count,Samples+1)
     %%Serial data accessing 
-    Hindex = fscanf(s,'%f')+1;
-    Heading(Hindex) = Hindex;
-    RSSI(Hindex) = fscanf(s,'%f');
-    Heading2(Hindex) = Hindex;
-        RSSI2(Hindex) = fscanf(s,'%f');
+    Hindex = fscanf(s,'%f');
+    Heading(Hindex+1) = Hindex;
+    RSSI(Hindex+1) = fscanf(s,'%f');
+    Heading2(Hindex+1) = Hindex;
+    RSSI2(Hindex+1) = fscanf(s,'%f');
         
     %%data pair is plotted
     set(plotHandle,'YData',RSSI,'XData',Heading);

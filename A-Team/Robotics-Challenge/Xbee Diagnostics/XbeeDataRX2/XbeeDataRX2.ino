@@ -6,7 +6,7 @@ Rx16Response rx16 = Rx16Response();
 int maxRSSI = 0;
 int count = 0;
 
-#define filterSamples   5              // filterSamples should  be an odd number, no smaller than 3
+#define filterSamples   3              // filterSamples should  be an odd number, no smaller than 3
 int sensSmoothArray1 [filterSamples];   // array for holding raw sensor values for sensor1 
 int rawData1, smoothData1;  // variables for sensor1 data
 
@@ -31,20 +31,23 @@ void setup() {
 void loop() {
   //Retrieve Samples packets and store them Heading/RSSI Pairs in seperate arrays
   Retrieve();
-
-  count++;
-  
-  if (count ==50){
-    for (int i = 0; i< Samples; i ++)
-    {
-       RSSIArray[i] = (RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3; 
-    }
-    count =0;
-    //Serial.println("AVERAGED");
     int finalHeading = ProcessData();
-    //Serial.println(finalHeading);
-  }
- 
+  //  Serial.println(finalHeading);
+    
+    
+//  count++;
+//  
+//  if (count ==50){
+//    for (int i = 0; i< Samples; i ++)
+//    {
+//       RSSIArray[i] = (RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3; 
+//    }
+//    count =0;
+//    //Serial.println("AVERAGED");
+//    int finalHeading = ProcessData();
+//    //Serial.println(finalHeading);
+//  }
+// 
 }
 
 
@@ -200,7 +203,7 @@ int ProcessData(){
       maxIndex = i;
     }
   }
-  return HeadingArray[maxIndex];  
+  return maxIndex;  
 }
   
   
