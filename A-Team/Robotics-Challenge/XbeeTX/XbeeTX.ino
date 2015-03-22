@@ -20,7 +20,7 @@ void loop(){
   xbee.send(tx);
   
   //Delay must be longer than the readPacket timeout on the receiving module
-  delay(100);
+  delay(30);
 }
 
 

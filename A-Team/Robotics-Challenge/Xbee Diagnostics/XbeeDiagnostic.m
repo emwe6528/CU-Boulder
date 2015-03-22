@@ -1,13 +1,16 @@
 % Real time data plot of Xbee RSSI and Heading
 %  
 % This matlab script is for ploting a graph by accessing serial port data in
-% real time. This script calls a function, XbeePlot(), that takes data from the
+% real time. Thigvs script calls a function, XbeePlot(), that takes data from the
 % user specified serial port for a user specified amount of samples. The
 % function then plots the data and shows the Max RSSI/Heading pair.
 %
 % This scipt will create two variables, RSSI and Heading. Each will be the
 % an array of length Samples. The user can use these arrays for
 % further data analysis.
+% 
+% $$e^{\pi i} + 1 = 0$$
+% 
 %
 % Author: Adam St. Amand.
 %%

@@ -5,8 +5,9 @@ float RSSIArray[Samples], HeadingArray[Samples];
 Rx16Response rx16 = Rx16Response();
 int maxRSSI = 0;
 int count = 0;
+int memory = 0;
 
-#define filterSamples   3              // filterSamples should  be an odd number, no smaller than 3
+#define filterSamples  9           // filterSamples should  be an odd number, no smaller than 3
 int sensSmoothArray1 [filterSamples];   // array for holding raw sensor values for sensor1 
 int rawData1, smoothData1;  // variables for sensor1 data
 
@@ -30,24 +31,30 @@ void setup() {
 
 void loop() {
   //Retrieve Samples packets and store them Heading/RSSI Pairs in seperate arrays
-  Retrieve();
+  for(int i = 0;i<150;i++) Retrieve();
+  for(int i = 0;i<Samples;i++){
+           while (RSSIArray[i] == 5 && i <Samples) i++;    
+           smoothData1 = digitalSmooth(RSSIArray[i], sensSmoothArray1);
+           RSSIArray[i] = smoothData1;
+  }
+
+//for(int i = 0;i<Samples;i++){
+//          Serial.println(i);
+//          Serial.println(RSSIArray[i]);   
+//          Serial.println(RSSIArray[i]);
+//          delay(30);
+//          
+//}
+
+//for(int i = 0;i<Samples;i++){
+//          Serial.println(i);
+//          Serial.println(RSSIArray[i]);   
+//          Serial.println(RSSIArray[i]);
+//          delay(30);
+//}
     int finalHeading = ProcessData();
-  //  Serial.println(finalHeading);
-    
-    
-//  count++;
-//  
-//  if (count ==50){
-//    for (int i = 0; i< Samples; i ++)
-//    {
-//       RSSIArray[i] = (RSSIArray[(i+1)%180] + abs(rx16.getRssi()-100) + RSSIArray[(i-1+180)%180])/3; 
-//    }
-//    count =0;
-//    //Serial.println("AVERAGED");
-//    int finalHeading = ProcessData();
-//    //Serial.println(finalHeading);
-//  }
-// 
+    Serial.println(finalHeading);
+    Initial();
 }
 
 
@@ -61,7 +68,7 @@ void loop() {
 void Initial(){
   for (int i = 0; i< Samples; i ++)
   {
-    RSSIArray[i] = 5;
+    RSSIArray[i] = 30;
     HeadingArray[i] = i;
   }
 }
@@ -70,13 +77,13 @@ void Initial(){
 
 
 void Retrieve(){
-  delay(100);
   xbee.readPacket(50);
   if (xbee.getResponse().isAvailable())
   {
     if (xbee.getResponse().getApiId() == RX_16_RESPONSE) 
     {
       xbee.getResponse().getRx16Response(rx16);
+      
      int Heading = rx16.getData(0);
       
         if (Heading>=0 && Heading<=179){
@@ -84,7 +91,7 @@ void Retrieve(){
         
           //Outlier Eliminator
 //          for (int i=0;i<Samples;i++){
-//            if (abs(RSSIArray[i]-RSSIArray[(i+1)%180])>10 && abs(RSSIArray[i]-RSSIArray[(i-1+180)%180])>10){
+//            if (abs(RSSIArray[i]-RSSIArray[(i+1)%180])>7 && abs(RSSIArray[i]-RSSIArray[(i-1+180)%180])>7){
 //              RSSIArray[i] = (RSSIArray[(i+1)%180] + RSSIArray[(i-1+180)%180])/2; 
 //            }
 //          }
@@ -95,7 +102,7 @@ void Retrieve(){
           
           
           //No Adjustment
-          //RSSIArray[Heading] = abs(rx16.getRssi()-100)
+          RSSIArray[Heading] = abs(rx16.getRssi()-100);
           
           
           
@@ -106,12 +113,36 @@ void Retrieve(){
           
           
           //Another Low Pass Digital Filter
-           smoothData1 = digitalSmooth(abs(rx16.getRssi()-100), sensSmoothArray1);
-           RSSIArray[Heading] = smoothData1;
+//           smoothData1 = digitalSmooth(abs(rx16.getRssi()-100), sensSmoothArray1);
+//           RSSIArray[Heading] = smoothData1;
+           
+           
+          //int increment = (Heading-memory)/abs(Heading-memory);
+//         if(){ 
+//          while(abs(Heading-memory)>1 && memory<180){
+//            RSSIArray[memory+increment] = RSSIArray[memory]+increment*((RSSIArray[Heading]-RSSIArray[memory])/(Heading-memory));
+//            memory+=increment; 
+//          
+//            Serial.println(memory+increment); 
+//            Serial.println(abs(rx16.getRssi()-100)); 
+//            Serial.println(RSSIArray[memory+increment]);
+//          }
+//        }
+//         else{ 
+//           while(abs(Heading-memory)>1 && memory<180){
+//            RSSIArray[memory+increment] = RSSIArray[memory]+increment*((RSSIArray[Heading]-RSSIArray[memory])/(Heading-memory));
+//            memory+=increment; 
+//          
+//            Serial.println(memory+increment); 
+//            Serial.println(abs(rx16.getRssi()-100)); 
+//            Serial.println(RSSIArray[memory+increment]);
+//          } 
+//         }
+//          memory = Heading;
           
-          Serial.println(Heading);
-          Serial.println(abs(rx16.getRssi()-100));   
-          Serial.println(RSSIArray[Heading]);
+//          Serial.println(Heading);
+//          Serial.println(abs(rx16.getRssi()-100));   
+//          Serial.println(RSSIArray[Heading]);
         }      
     }
   }
@@ -194,16 +225,20 @@ int smooth(int data, float filterVal, float smoothedVal){
 
 int ProcessData(){
   int maxIndex = 0;
+  int counter = 0;
   maxRSSI = RSSIArray[maxIndex];
   for (int i=1; i<Samples; i++)
   {
-    if (maxRSSI<RSSIArray[i])
+    if (maxRSSI<RSSIArray[i]) maxRSSI = RSSIArray[i];
+  }
+  for (int i=1; i<Samples; i++){
+    if ((maxRSSI-3)<=RSSIArray[i])
     {
-      maxRSSI = RSSIArray[i];
-      maxIndex = i;
+      maxIndex += i;
+      counter++;
     }
   }
-  return maxIndex;  
+  return maxIndex/counter;  
 }
   
   
