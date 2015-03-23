@@ -1,7 +1,8 @@
 
 function [RSSI, Heading] = XbeePlot_Dynamic(SerialPort,Samples);
 
-
+% Time interval between each input.
+TimeInterval=0.03;
 % Set up the serial port object
 s = serial(SerialPort)
 fopen(s);
@@ -26,6 +27,7 @@ axesHandle = axes('Parent',figureHandle,...
 hold on;
 
 plotHandle = plot(axesHandle,RSSI,Heading, 'r.');
+plotHandle2 = plot(axesHandle,RSSI,Heading, 'bo');
 
 xlim(axesHandle,[min(0) max(180)]);
 
@@ -58,11 +60,17 @@ while ~isequal(count,Samples+1)
     Hindex = fscanf(s,'%f');
     Heading(Hindex+1) = Hindex;
     RSSI(Hindex+1) = fscanf(s,'%f');
+    Heading2(Hindex+1) = Hindex;
+    RSSI2(Hindex+1) = fscanf(s,'%f');
         
     %%data pair is plotted
     set(plotHandle,'YData',RSSI,'XData',Heading);
-    set(figureHandle,'Visible','on');
-
+        set(figureHandle,'Visible','on');
+            set(plotHandle2,'YData',RSSI2,'XData',Heading);
+        set(figureHandle,'Visible','on');
+        
+%     set(plot(axesHandle,RSSI2,Heading2+180, 'b.'),'YData',RSSI2,'XData',Heading2+180);     
+%     set(figureHandle,'Visible','on');
     %%small pause to allow next transmission
     pause(TimeInterval);
     count = count +1;

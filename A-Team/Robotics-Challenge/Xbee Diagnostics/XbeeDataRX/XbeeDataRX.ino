@@ -17,8 +17,10 @@ void loop() {
     if (xbee.getResponse().isAvailable())
     {
       if (xbee.getResponse().getApiId() == RX_16_RESPONSE) xbee.getResponse().getRx16Response(rx16);
-      Serial.println(rx16.getData(0));
-      Serial.println(abs(rx16.getRssi()-100));
+      Serial.println("Heading = ");
+      Serial.print(rx16.getData(0));
+      Serial.println("RSSI = ");
+      Serial.print(abs(rx16.getRssi()-100));
     }
   }
 }

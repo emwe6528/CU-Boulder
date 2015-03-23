@@ -30,9 +30,10 @@ clear all;
 
 SerialPort = input('\nWhat is your Serial Port? ', 's');
 Samples = input('\nHow many samples would you like to take? ');
+style = input('\nDynamic X-axis or Static? (0 for Dynamic, # of units on X-axis for Static) ');
 pause(5);
 %Retreive arrays of length Samples for RSSI and Heading
-[RSSI, Heading] = XbeePlot_Dynamic(SerialPort, Samples);
+[Data, X] = SensDiagnostic(SerialPort, Samples,style);
 
 %Cleanup Variables
 clearvars SerialPort Samples;

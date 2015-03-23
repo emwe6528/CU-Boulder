@@ -1,15 +1,19 @@
 
-function [RSSI, Heading] = XbeePlot_Dynamic(SerialPort,Samples);
-
+function [Data, X] = SensDiagnostic2(SerialPort,Samples,style);
 
 % Set up the serial port object
 s = serial(SerialPort)
+mode = 1;
+magnitude = 2;
+
+
+
 fopen(s);
 
 % Initial Variables
 error = 0;
-RSSI = 0;
-Heading = 0;
+Data = 0;
+X = 0;
 %% Set up the figure 
 figureHandle = figure('NumberTitle','off',...
     'Name','RSSI Levels (Currently Gathering Data)',...
@@ -25,18 +29,30 @@ axesHandle = axes('Parent',figureHandle,...
 
 hold on;
 
-plotHandle = plot(axesHandle,RSSI,Heading, 'r.');
+plotHandle = zeros(1,magnitude);
 
-xlim(axesHandle,[min(0) max(180)]);
+for i=1:magnitude
+    plotHandle[i] = plot(axesHandle,Data,X,'Marker','.','LineWidth',1,'Color',[rand rand rand]);
+end
+
+
+if mode~=0
+    xlim(axesHandle,[0 max(style)]);
+end
+
+if mode==0
+    xlim(axesHandle,[X-5 max(X+.001)]);
+end
+
 
 % Create xlabel
-xlabel('Heading','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
+xlabel('X','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
 
 % Create ylabel
-ylabel('RSSI','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
+ylabel('Data','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
 
 % Create title
-title('XBee Serial Output','FontSize',15,'Color',[1 1 1]);
+title('Serial Output','FontSize',15,'Color',[1 1 1]);
 
 
 
@@ -55,15 +71,16 @@ try
 
 while ~isequal(count,Samples+1)
     %%Serial data accessing 
-    Hindex = fscanf(s,'%f');
-    Heading(Hindex+1) = Hindex;
-    RSSI(Hindex+1) = fscanf(s,'%f');
-        
-    %%data pair is plotted
-    set(plotHandle,'YData',RSSI,'XData',Heading);
-    set(figureHandle,'Visible','on');
-
-    %%small pause to allow next transmission
+    
+    for i=1:magnitude
+        index = fscanf(s,'%f');
+        X(index+1) = index;
+        Data(index+1) = fscanf(s,'%f');
+        set(plotHandle[i],'YData',Data,'XData',X);
+        set(figureHandle,'Visible','on');
+    end
+  
+    
     pause(TimeInterval);
     count = count +1;
 end
@@ -74,13 +91,6 @@ end
 if (error == 0) 
     set(figureHandle, 'Name', 'RSSI Levels (Finished)');
 end
-
-% Finds the Heading that corresponds to the Maximum RSSI value
-[Y, I] = max(RSSI);
-fprintf('\nMaximum RSSI and Heading: %d at %d degrees\n', max(RSSI), Heading(I))
-    
-
-
 
 %% Clean up the serial port
 

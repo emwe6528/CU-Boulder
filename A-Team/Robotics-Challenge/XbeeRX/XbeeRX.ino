@@ -22,10 +22,10 @@ XBee xbee = XBee();
 #define filterSamples  9           // filterSamples should  be an odd number, no smaller than 3 (<<# sensitive, #<< insensitive)
 Rx16Response rx16 = Rx16Response();
 
-
 float RSSIArray[arraySize];      // array for holding raw RSSI values
 int sensSmoothArray [filterSamples];   // holds past RSSI values for filtering
 int rawData, smoothData;  // variables for sensor data
+
 
 
 void setup() {
@@ -36,8 +36,12 @@ void setup() {
   Reset();
 }
 
+
+
+
 void loop() {
-  for(int i = 0;i<150;i++) Retrieve();      //Retrieves packets and their RSSI values and stores them. Processes the data(optional).
+  
+  for(int i = 0;i<150;i++) Retrieve();      //Retrieves packets and their RSSI values and stores them.
   
   //Passes all received data through a digital filter.
   for(int i = 0;i<arraySize;i++){
@@ -88,8 +92,7 @@ void Reset(){
 
 
 
-//Receives the transmitted packet, processes the data(optional), 
-//and stores the information in RSSIArray
+//Receives the transmitted packet and stores the information in RSSIArray.
 
 void Retrieve(){
   xbee.readPacket(50);    //Wait 50 to receive packet
@@ -102,19 +105,10 @@ void Retrieve(){
       //Store the transmitted data and RSSI
       int currentHeading = rx16.getData(0);
       int currentRSSI = abs(rx16.getRssi()-100);
-      
-      //Here you can process the data however you'd like. Samples are below.
-      //Only executes if the data is within parameters.
+
+      //Stores the RSSI in RSSIArray. Only executes if the data is within parameters.
       if (currentHeading>=0 && currentHeading<=179){
-        
-        //No Adjustment
         RSSIArray[currentHeading] = currentRSSI;
-        
-        //Low Pass Digital Filter
-//        smoothData1 = digitalSmooth(abs(rx16.getRssi()-100), sensSmoothArray1);
-//        RSSIArray[Heading] = smoothData1;
-
-
         //MatlabPrint(currentHeading,currentRSSI, RSSIArray[currentHeading]);     //Print raw value and processed value to Matlab
       }      
     }
