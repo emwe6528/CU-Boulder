@@ -6,7 +6,7 @@ s = serial(SerialPort)
 mode = 1;
 magnitude = 2;
 
-
+TimeInterval = .03;
 
 fopen(s);
 
@@ -14,6 +14,7 @@ fopen(s);
 error = 0;
 Data = 0;
 X = 0;
+style = 180;
 %% Set up the figure 
 figureHandle = figure('NumberTitle','off',...
     'Name','RSSI Levels (Currently Gathering Data)',...
@@ -32,12 +33,12 @@ hold on;
 plotHandle = zeros(1,magnitude);
 
 for i=1:magnitude
-    plotHandle[i] = plot(axesHandle,Data,X,'Marker','.','LineWidth',1,'Color',[rand rand rand]);
+    plotHandle(i) = plot(axesHandle,X,Data,'.','Color',[rand rand rand]);
 end
 
 
 if mode~=0
-    xlim(axesHandle,[0 max(style)]);
+    xlim(axesHandle,[min(0) max(style)]);
 end
 
 if mode==0
@@ -69,15 +70,17 @@ try
     
 % Will execute Samples amount of times.
 
+
 while ~isequal(count,Samples+1)
     %%Serial data accessing 
     
     for i=1:magnitude
         index = fscanf(s,'%f');
-        X(index+1) = index;
-        Data(index+1) = fscanf(s,'%f');
-        set(plotHandle[i],'YData',Data,'XData',X);
+        X(index+1,i) = index;
+        Data(index+1,i) = fscanf(s,'%f');
+        set(plotHandle(i),'YData',Data(:,i),'XData',X(:,i));
         set(figureHandle,'Visible','on');
+
     end
   
     

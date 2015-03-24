@@ -1,16 +1,20 @@
 
-function [RSSI, Heading] = XbeePlot_Dynamic_Archive(SerialPort,Samples);
+function [Data, X] = Dynamic_Realtime(SerialPort,Samples,style);
 
-% Time interval between each input.
-TimeInterval=0.03;
 % Set up the serial port object
 s = serial(SerialPort)
+mode = 0;
+magnitude = 2;
+
+TimeInterval = .03;
+
 fopen(s);
 
 % Initial Variables
 error = 0;
-RSSI = 0;
-Heading = 0;
+Data = 0;
+X = 0;
+style = 180;
 %% Set up the figure 
 figureHandle = figure('NumberTitle','off',...
     'Name','RSSI Levels (Currently Gathering Data)',...
@@ -26,20 +30,32 @@ axesHandle = axes('Parent',figureHandle,...
 
 hold on;
 
-plotHandle = plot(axesHandle,RSSI,Heading, 'r.');
-plotHandle2 = plot(axesHandle,RSSI,Heading, 'bo');
+plotHandle = zeros(1,magnitude);
+Key = zeros(3,3);
 
-xlim(axesHandle,[min(0) max(180)]);
+for i=1:magnitude
+    Key(i,:) = [rand rand rand];
+    plotHandle(i) = plot(axesHandle,X,Data,'.-','Color',Key(i,:));
+end
+
+
+
+    xlim(axesHandle,[min(0) max(style)]);
+
+
+
+
 
 % Create xlabel
-xlabel('Heading','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
+xlabel('X','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
 
 % Create ylabel
-ylabel('RSSI','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
+ylabel('Data','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
 
 % Create title
-title('XBee Serial Output','FontSize',15,'Color',[1 1 1]);
+title('Serial Output','FontSize',15,'Color',[1 1 1]);
 
+legend('raw','filtered')
 
 
 
@@ -55,25 +71,30 @@ try
     
 % Will execute Samples amount of times.
 
-while ~isequal(count,Samples+1)
-    %%Serial data accessing 
-    Hindex = fscanf(s,'%f');
-    Heading(Hindex+1) = Hindex;
-    RSSI(Hindex+1) = fscanf(s,'%f');
-    Heading2(Hindex+1) = Hindex;
-    RSSI2(Hindex+1) = fscanf(s,'%f');
-        
-    %%data pair is plotted
-    set(plotHandle,'YData',RSSI,'XData',Heading);
-    set(figureHandle,'Visible','on');
-    set(plotHandle2,'YData',RSSI2,'XData',Heading);
-   
-    set(figureHandle,'Visible','on');
-        
 
-    %%small pause to allow next transmission
+while (1==1)
+    %%Serial data accessing 
     
-    pause(TimeInterval);
+    for i=1:magnitude
+        index = fscanf(s,'%f');
+        if (mode~=0)
+           
+            X(index+1,i) = index;
+        end
+        if (mode==0)
+             X(count+1,i) = count;
+        end
+        
+            Data(count+1,i) = fscanf(s,'%f');
+        set(plotHandle(i),'YData',Data(:,i),'XData',X(:,i));
+        set(figureHandle,'Visible','on');
+
+    end
+  if (mode == 0)
+       xlim(axesHandle,[count-100 count+.01]);
+  end
+    
+    pause(.001);
     count = count +1;
 end
 
@@ -83,13 +104,6 @@ end
 if (error == 0) 
     set(figureHandle, 'Name', 'RSSI Levels (Finished)');
 end
-
-% Finds the Heading that corresponds to the Maximum RSSI value
-[Y, I] = max(RSSI);
-fprintf('\nMaximum RSSI and Heading: %d at %d degrees\n', max(RSSI), Heading(I))
-    
-
-
 
 %% Clean up the serial port
 

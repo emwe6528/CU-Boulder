@@ -29,13 +29,14 @@ void loop() {
   if (xbee.getResponse().isAvailable())   //Executes only if a packet is available to be read
   {
     if (xbee.getResponse().getApiId() == RX_16_RESPONSE) xbee.getResponse().getRx16Response(rx16);
+    
     //Prints Heading
-    Serial.println("Heading = ");
-    Serial.print(rx16.getData(0));
+    Serial.print("Heading = ");
+    Serial.println(rx16.getData(0));
     
     //Prints signal strength(RSSI)
-    //Serial.println("RSSI = ");
-    //Serial.print(abs(rx16.getRssi()-100));
+    Serial.print("RSSI = ");
+    Serial.println(abs(rx16.getRssi()-100));
   }
 }
 
