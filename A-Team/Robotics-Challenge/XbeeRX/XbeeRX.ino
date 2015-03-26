@@ -1,14 +1,15 @@
 /* ////////////////////////////////
+This sketch finds the heading (degrees) of the transmitting beacon relative to
+the receiver. For example, if the receiver is due west of the beacon, this sketch
+will return a heading of 90 degrees.
 
+This sketch receives a packet and stores the RSSI (signal strength) in the RSSIArray
+with an index of the Heading (data). It does so 'Samples' amount of times. Then the data
+is passed through a digital filter. If the RSSI was not evaluated for a specific heading,
+then that data point is not evaluated. This prevents values that were not measured from
+effecting the output of the digital filter.
 
-
-
-
-Summary
-
-
-
-
+Authored By: Adam St. Amand
 //////////////////////////////////*/
 
 
@@ -25,7 +26,8 @@ Rx16Response rx16 = Rx16Response();
 float RSSIArray[arraySize];      // array for holding raw RSSI values
 int sensSmoothArray [filterSamples];   // holds past RSSI values for filtering
 int rawData, smoothData;  // variables for sensor data
-
+int resetRSSI = 20;    //The value that RSSI is reset to after each pass through filter
+int Samples = 150;
 
 
 void setup() {
@@ -41,11 +43,11 @@ void setup() {
 
 void loop() {
   
-  for(int i = 0;i<150;i++) Retrieve();      //Retrieves packets and their RSSI values and stores them.
+  for(int i = 0;i<Samples;i++) Retrieve();      //Retrieves packets and their RSSI values and stores them.
   
   //Passes all received data through a digital filter.
   for(int i = 0;i<arraySize;i++){
-    while (RSSIArray[i] == 20 && i <arraySize) i++;        //Skips any RSSI values that were not received (20 is reset value).
+    while (RSSIArray[i] == resetRSSI && i <arraySize) i++;        //Skips any RSSI values that were not received (20 is reset value).
     smoothData = digitalSmooth(RSSIArray[i], sensSmoothArray);
     RSSIArray[i] = smoothData;
   }
@@ -57,7 +59,7 @@ void loop() {
 //  }
 
   //Process the data once more, print the result, and reset.
-  int finalHeading = ProcessData();
+  int finalHeading = (ProcessData()+180)%360;
   Serial.println(finalHeading);
   Reset();
 }
@@ -87,7 +89,7 @@ void MatlabPrint(int Heading, int RSSIvalue, int Adjvalue){
 //Resets all RSSI values to the same value.
 
 void Reset(){
-  for (int i = 0; i< arraySize; i ++) RSSIArray[i] = 20;  
+  for (int i = 0; i< arraySize; i ++) RSSIArray[i] = resetRSSI;  
 }
 
 
