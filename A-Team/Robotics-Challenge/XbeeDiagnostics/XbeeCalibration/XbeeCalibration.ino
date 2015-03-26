@@ -1,6 +1,6 @@
 /*
 This sketch simply receives a packet and prints the packet's
-data and, optionally, the signal strength(RSSI). 
+data and signal strength(RSSI). 
 
 It is highly reccomended you upload this sketch and ensure
 you are receiving the data you expect(the correct headings) BEFORE
@@ -39,21 +39,4 @@ void loop() {
     Serial.println(abs(rx16.getRssi()-100));
   }
 }
-
-
-      
-
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
 
