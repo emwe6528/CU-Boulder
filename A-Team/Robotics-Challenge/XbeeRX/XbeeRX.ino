@@ -120,7 +120,20 @@ void Retrieve(){
 
 
 
+/* digitalSmooth
+ Paul Badger 2007
+ A digital smoothing filter for smoothing sensor jitter 
+ This filter accepts one new piece of data each time through a loop, which the 
+ filter inputs into a rolling array, replacing the oldest data with the latest reading.
+ The array is then transferred to another array, and that array is sorted from low to high. 
+ Then the highest and lowest %15 of samples are thrown out. The remaining data is averaged
+ and the result is returned.
 
+ Every sensor used with the digitalSmooth function needs to have its own array to hold 
+ the raw sensor values. This array is then passed to the function, for it's use.
+ This is done with the name of the array associated with the particular sensor.
+ */
+ 
 //Digital filter used to smooth the input data. 
 
 int digitalSmooth(int rawIn, int *sensSmoothArray){     // "int *sensSmoothArray" passes an array to the function - the asterisk indicates the array name is a pointer
