@@ -19,13 +19,17 @@
 %Windows 32 and Windows 64     Serial Port = 'com1'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-s = serial('com12')
+s = serial('com5')
 
 
 %Select the maximum value for the x-axis. '0' sets x-axis to dynamic
 %meaning it will change with time.
 
+<<<<<<< HEAD
 limit = 0;    %0 = Dynamic, ~0 = Static
+=======
+mode = 180;    %0 = Dynamic, ~0 = Static
+>>>>>>> ae54704d78257665225721d6d56aaeb2a12d08d3
 
 
 %Select how many sources of data are being plotted
