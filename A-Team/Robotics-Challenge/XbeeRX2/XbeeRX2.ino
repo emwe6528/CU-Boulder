@@ -20,15 +20,15 @@ Authored By: Adam St. Amand
 
 XBee xbee = XBee();
 #define arraySize  180    // Determines RSSIArray size; Allows received headings to overwrite old ones
-#define filterSamples  9           // filterSamples should  be an odd number, no smaller than 3 (<<# sensitive, #<< insensitive)
+#define filterSamples  5           // filterSamples should  be an odd number, no smaller than 3 (<<# sensitive, #<< insensitive)
 Rx16Response rx16 = Rx16Response();
 
 float RSSIArray[arraySize];      // array for holding raw RSSI values
 int sensSmoothArray [filterSamples];   // holds past RSSI values for filtering
 int rawData, smoothData;  // variables for sensor data
 int resetRSSI = 20;    //The value that RSSI is reset to after each pass through filter
-int Samples = 110;
-
+int Samples = 150;
+int count = 0;
 
 void setup() {
   //Initialize serial communications at 9600 bps:
@@ -43,25 +43,13 @@ void setup() {
 
 void loop() {
   
-  for(int i = 0;i<Samples;i++) Retrieve();      //Retrieves packets and their RSSI values and stores them.
-  
-  //Passes all received data through a digital filter.
-  for(int i = 0;i<arraySize;i++){
-    while (RSSIArray[i] == resetRSSI && i <arraySize) i++;        //Skips any RSSI values that were not received (20 is reset value).
-    smoothData = digitalSmooth(RSSIArray[i], sensSmoothArray);
-    RSSIArray[i] = smoothData;
-  }
-
-  //Prints filtered data for Matlab script
-//  for(int i = 0;i<arraySize;i++) {
-//    MatlabPrint(i,RSSIArray[i],RSSIArray[i]);
-//    delay(30);
-//  }
-
-  //Process the data once more, print the result, and reset.
+  Retrieve();      //Retrieves packets and their RSSI values and stores them.
+  if (count>150){
   int finalHeading = (ProcessData());
   Serial.println(finalHeading);
-  Reset();
+  count =0;
+  }
+  count++;
 }
 
 
@@ -97,7 +85,7 @@ void Reset(){
 //Receives the transmitted packet and stores the information in RSSIArray.
 
 void Retrieve(){
-  xbee.readPacket(50);    //Wait 50 to receive packet
+  xbee.readPacket(10);    //Wait 50 to receive packet
   if (xbee.getResponse().isAvailable())     //Execute only if packet found
   {
     if (xbee.getResponse().getApiId() == RX_16_RESPONSE) 
@@ -106,13 +94,15 @@ void Retrieve(){
       
       //Store the transmitted data and RSSI
       int currentHeading = rx16.getData(0);
-      int currentRSSI = abs(rx16.getRssi()-100);
+    smoothData = digitalSmooth(abs(rx16.getRssi()-100), sensSmoothArray);
+    RSSIArray[currentHeading] = smoothData;
+
 
       //Stores the RSSI in RSSIArray. Only executes if the data is within parameters.
-      if (currentHeading>=0 && currentHeading<=179){
-        RSSIArray[currentHeading] = currentRSSI;
+//      if (currentHeading>=0 && currentHeading<=179){
+//        RSSIArray[currentHeading] = currentRSSI;
         //MatlabPrint(currentHeading,currentRSSI, RSSIArray[currentHeading]);     //Print raw value and processed value to Matlab
-      }      
+          
     }
   }
 }

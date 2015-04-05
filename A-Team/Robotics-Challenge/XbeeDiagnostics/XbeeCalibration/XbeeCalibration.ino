@@ -18,14 +18,14 @@ Rx16Response rx16 = Rx16Response();
 
 void setup() {
   // initialize serial communications at 9600 bps:
-  Serial.begin(9600); 
-  Serial1.begin(9600);
+  Serial.begin(57600); 
+  Serial1.begin(57600);
   xbee.setSerial(Serial1);
 }
 
 void loop() {
  
-  xbee.readPacket(50);    // Waits 50ms to read a packet
+  xbee.readPacket(10);    // Waits 50ms to read a packet
   if (xbee.getResponse().isAvailable())   //Executes only if a packet is available to be read
   {
     if (xbee.getResponse().getApiId() == RX_16_RESPONSE) xbee.getResponse().getRx16Response(rx16);
@@ -39,4 +39,7 @@ void loop() {
     Serial.println(abs(rx16.getRssi()-100));
   }
 }
+
+]
+
 
