@@ -1,4 +1,13 @@
-%% 
+%% Summary
+%
+%The following code will plot data points in real time from a user defined
+%number of sources. The x-axis will extend to either a user defined value
+%or will shift in time. Change the three parameters below to suit your
+%needs.
+%
+%Authored by Adam St. Amand
+
+%% User Set Parameters
 
 %Serial Port works for different platforms. Below are EXAMPLES of the 
 %FORMAT for each platform. User input will likely need to be adjusted for 
@@ -16,14 +25,22 @@ s = serial('com5')
 %Select the maximum value for the x-axis. '0' sets x-axis to dynamic
 %meaning it will change with time.
 
+<<<<<<< HEAD
 mode = 0;    %0 = Dynamic, ~0 = Static
+=======
+<<<<<<< HEAD
+limit = 0;    %0 = Dynamic, ~0 = Static
+=======
+mode = 180;    %0 = Dynamic, ~0 = Static
+>>>>>>> ae54704d78257665225721d6d56aaeb2a12d08d3
+>>>>>>> develop
 
 
-%Select how many sources of data are being graphed
+%Select how many sources of data are being plotted
 
 magnitude = 3;
 
-%%
+%% Initialize Variables
 
 fopen(s);  %Initialize Serial Communication
 error = 0; Y = 0; X = 0; count = 1;  % Initial Variables
@@ -46,16 +63,16 @@ axesHandle = axes('Parent',figureHandle,...
 hold on;
 
 for i=1:magnitude
-    if (mode~=0)
-        plotHandle(i) = plot(axesHandle,X,Y,'.','DisplayName', strcat('Figure',num2str(i)),'Color',[rand, rand, 1]);
+    if (limit~=0)
+        plotHandle(i) = plot(axesHandle,X,Y,'.','DisplayName', strcat('Figure ',num2str(i)),'Color',[rand, rand, 1]);
     end
     
-    if (mode==0)
-         plotHandle(i) = plot(axesHandle,X,Y,'.-','DisplayName', strcat('Figure',num2str(i)),'Color',[rand, rand, 1]);
+    if (limit==0)
+         plotHandle(i) = plot(axesHandle,X,Y,'.-','DisplayName', strcat('Figure ',num2str(i)),'Color',[rand, rand, 1]);
     end
 end
 
-xlim(axesHandle,[min(0) max(mode)+1]);
+xlim(axesHandle,[min(0) max(limit)+1]);
 
 % Create xlabel
 xlabel('X','FontWeight','bold','FontSize',14,'Color',[.8 .8 .8]);
@@ -79,13 +96,13 @@ try  % Everything within 'try' will execute as long as there are no errors
     
 while (1==1)
     for i=1:magnitude
-        if (mode~=0)
+        if (limit~=0)
             index = fscanf(s,'%f');
             X(index+1,i) = index;
             Y(index+1,i) = fscanf(s,'%f');
         end
         
-        if (mode==0)
+        if (limit==0)
              X(count+1,i) = count;
              Y(count+1,i) = fscanf(s,'%f');
         end
@@ -94,7 +111,7 @@ while (1==1)
         set(figureHandle,'Visible','on');
     end
     
-    if (mode == 0)
+    if (limit == 0)
         xlim(axesHandle,[count-100 count+.01]);
     end
     
@@ -107,7 +124,7 @@ end
 % If there was an error above, it will skip down to here.
 catch ME
     error = 1;
-    errorMessage = sprintf('Error in function XBee_RealTime().\n\nError Message: %s', ME.message);
+    errorMessage = sprintf('Error in function RealTimePlot.\n\nError Message: %s', ME.message);
 	fprintf(1,'%s', errorMessage);
     fprintf('\nSerial Port has been closed\n')
 end
