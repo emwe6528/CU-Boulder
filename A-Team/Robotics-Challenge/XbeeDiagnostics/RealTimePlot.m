@@ -25,8 +25,20 @@ s = serial('com5')
 %Select the maximum value for the x-axis. '0' sets x-axis to dynamic
 %meaning it will change with time.
 
+<<<<<<< HEAD
 limit = 0;    %0 = Dynamic, ~0 = Static
 
+=======
+<<<<<<< HEAD
+mode = 0;    %0 = Dynamic, ~0 = Static
+=======
+<<<<<<< HEAD
+limit = 0;    %0 = Dynamic, ~0 = Static
+=======
+mode = 180;    %0 = Dynamic, ~0 = Static
+>>>>>>> ae54704d78257665225721d6d56aaeb2a12d08d3
+>>>>>>> develop
+>>>>>>> ba8ddc54ad943c135ec4e2d7c9a9fe99a5b207b6
 
 
 %Select how many sources of data are being plotted

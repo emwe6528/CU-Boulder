@@ -15,12 +15,13 @@ void setup(){
 void loop(){
   currentVector = getVector();
   uint8_t payload[] = {currentVector/2};
+
   //Address of receiving device can be anything while in broadcasting mode
   Tx16Request tx = Tx16Request(0x5678, payload, sizeof(payload));
   xbee.send(tx);
   
   //Delay must be longer than the readPacket timeout on the receiving module
-  delay(30);
+  delay(10);
 }
 
 
@@ -38,7 +39,7 @@ int getVector () {
   Wire.endTransmission();  // stop transmitting 
 
   // step 2: wait for readings to happen 
-  delay(10);               // datasheet suggests at least 6000 microseconds 
+  delay(7);               // datasheet suggests at least 6000 microseconds 
 
   // step 3: request reading from sensor 
   Wire.requestFrom(compassAddress, 2);  // request 2 bytes from slave device #33 

@@ -27,7 +27,7 @@ float RSSIArray[arraySize];      // array for holding raw RSSI values
 int sensSmoothArray [filterSamples];   // holds past RSSI values for filtering
 int rawData, smoothData;  // variables for sensor data
 int resetRSSI = 20;    //The value that RSSI is reset to after each pass through filter
-int Samples = 150;
+int Samples = 110;
 
 
 void setup() {
@@ -53,7 +53,7 @@ void loop() {
   }
 
   //Process the data once more, print the result, and reset.
-  int finalHeading = (ProcessData()+180)%360;
+  int finalHeading = (ProcessData());
   Serial.println(finalHeading);
   Reset();
 }
