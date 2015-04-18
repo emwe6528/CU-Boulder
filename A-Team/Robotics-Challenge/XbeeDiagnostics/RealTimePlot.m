@@ -26,10 +26,14 @@ s = serial('com5')
 %meaning it will change with time.
 
 <<<<<<< HEAD
+mode = 0;    %0 = Dynamic, ~0 = Static
+=======
+<<<<<<< HEAD
 limit = 0;    %0 = Dynamic, ~0 = Static
 =======
 mode = 180;    %0 = Dynamic, ~0 = Static
 >>>>>>> ae54704d78257665225721d6d56aaeb2a12d08d3
+>>>>>>> develop
 
 
 %Select how many sources of data are being plotted

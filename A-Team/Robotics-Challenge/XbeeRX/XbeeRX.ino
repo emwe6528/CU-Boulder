@@ -27,13 +27,13 @@ float RSSIArray[arraySize];      // array for holding raw RSSI values
 int sensSmoothArray [filterSamples];   // holds past RSSI values for filtering
 int rawData, smoothData;  // variables for sensor data
 int resetRSSI = 20;    //The value that RSSI is reset to after each pass through filter
-int Samples = 150;
+int Samples = 110;
 
 
 void setup() {
   //Initialize serial communications at 9600 bps:
-  Serial.begin(9600); 
-  Serial1.begin(9600);
+  Serial.begin(57600); 
+  Serial1.begin(57600);
   xbee.setSerial(Serial1);
   Reset();
 }
@@ -59,7 +59,7 @@ void loop() {
 //  }
 
   //Process the data once more, print the result, and reset.
-  int finalHeading = (ProcessData()+180)%360;
+  int finalHeading = (ProcessData());
   Serial.println(finalHeading);
   Reset();
 }
