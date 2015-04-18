@@ -7,8 +7,8 @@ int currentVector = 0;
 
 void setup(){
   Wire.begin();
-  Serial.begin(9600);
-  Serial1.begin(9600);
+  Serial.begin(57600);
+  Serial1.begin(57600);
   xbee.setSerial(Serial1);
 }
 

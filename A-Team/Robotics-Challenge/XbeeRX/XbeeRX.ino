@@ -32,8 +32,8 @@ int Samples = 150;
 
 void setup() {
   //Initialize serial communications at 9600 bps:
-  Serial.begin(9600); 
-  Serial1.begin(9600);
+  Serial.begin(57600); 
+  Serial1.begin(57600);
   xbee.setSerial(Serial1);
   Reset();
 }
@@ -47,16 +47,10 @@ void loop() {
   
   //Passes all received data through a digital filter.
   for(int i = 0;i<arraySize;i++){
-    while (RSSIArray[i] == resetRSSI && i <arraySize) i++;        //Skips any RSSI values that were not received (20 is reset value).
+    while (RSSIArray[i] == resetRSSI && i <arraySize) i++;        //Skips any RSSI values that were not received (==reset value).
     smoothData = digitalSmooth(RSSIArray[i], sensSmoothArray);
     RSSIArray[i] = smoothData;
   }
-
-  //Prints filtered data for Matlab script
-//  for(int i = 0;i<arraySize;i++) {
-//    MatlabPrint(i,RSSIArray[i],RSSIArray[i]);
-//    delay(30);
-//  }
 
   //Process the data once more, print the result, and reset.
   int finalHeading = (ProcessData()+180)%360;
@@ -74,15 +68,6 @@ void loop() {
 /////////////////////////////////////////////////////
 
 
-
-//Prints the necessary information in the correct order to
-//be evaluated by the Matlab script "Xbee_Diagnostics".
-
-void MatlabPrint(int Heading, int RSSIvalue, int Adjvalue){
-    Serial.println(Heading);
-    Serial.println(RSSIvalue);   
-    Serial.println(Adjvalue);
-}
 
 
 
@@ -111,7 +96,6 @@ void Retrieve(){
       //Stores the RSSI in RSSIArray. Only executes if the data is within parameters.
       if (currentHeading>=0 && currentHeading<=179){
         RSSIArray[currentHeading] = currentRSSI;
-        //MatlabPrint(currentHeading,currentRSSI, RSSIArray[currentHeading]);     //Print raw value and processed value to Matlab
       }      
     }
   }

@@ -18,8 +18,8 @@ Rx16Response rx16 = Rx16Response();
 
 void setup() {
   // initialize serial communications at 9600 bps:
-  Serial.begin(9600); 
-  Serial1.begin(9600);
+  Serial.begin(57600); 
+  Serial1.begin(57600);
   xbee.setSerial(Serial1);
 }
 
