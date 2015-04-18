@@ -14,11 +14,6 @@ Summary
 
 
 
-
-
-
-
-
 #define filterSamples  7          // filterSamples should  be an odd number, no smaller than 3 (<<# sensitive, #<< insensitive)
 #define filterSamples2  17
 
