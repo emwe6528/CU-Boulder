@@ -31,7 +31,6 @@ int Samples = 110;
 
 
 void setup() {
-  //Initialize serial communications at 9600 bps:
   Serial.begin(57600); 
   Serial1.begin(57600);
   xbee.setSerial(Serial1);
@@ -43,7 +42,7 @@ void setup() {
 
 void loop() {
   
-  for(int i = 0;i<Samples;i++) Retrieve();      //Retrieves packets and their RSSI values and stores them.
+  for(int i = 0;i<Samples;i++) Retrieve();      //Retrieves packets and stores their RSSI (Signal Strength).
   
   //Passes all received data through a digital filter.
   for(int i = 0;i<arraySize;i++){

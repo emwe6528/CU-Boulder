@@ -9,64 +9,55 @@
 
 %% User Set Parameters
 
-%Serial Port works for different platforms. Below are EXAMPLES of the 
+%Serial() works for different platforms. Below are EXAMPLES of the
 %FORMAT for each platform. User input will likely need to be adjusted for 
-%specific machine.
+%a specific machine.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Linux and Linux 64            Serial Port = '/dev/ttyS0'
 %Mac OS X 64                   Serial Port = '/dev/tty.KeySerial1'
 %Windows 32 and Windows 64     Serial Port = 'com1'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 s = serial('com5')
 
 
 %Select the maximum value for the x-axis. '0' sets x-axis to dynamic
 %meaning it will change with time.
-
-<<<<<<< HEAD
 limit = 0;    %0 = Dynamic, ~0 = Static
-
-=======
-<<<<<<< HEAD
-mode = 0;    %0 = Dynamic, ~0 = Static
-=======
-<<<<<<< HEAD
-limit = 0;    %0 = Dynamic, ~0 = Static
-=======
-mode = 180;    %0 = Dynamic, ~0 = Static
->>>>>>> ae54704d78257665225721d6d56aaeb2a12d08d3
->>>>>>> develop
->>>>>>> ba8ddc54ad943c135ec4e2d7c9a9fe99a5b207b6
 
 
 %Select how many sources of data are being plotted
-
 magnitude = 3;
+
+
+%Check for valid values of magnitude and limit
+if (limit<0 || magnitude<1)
+    fprintf('\nLimit must be >=0, Magnitdue must be >=1.\n')
+end
 
 %% Initialize Variables
 
 fopen(s);  %Initialize Serial Communication
 error = 0; Y = 0; X = 0; count = 1;  % Initial Variables
 
-
 %% Set up the figure 
 
+% Create figure handle.
 figureHandle = figure('NumberTitle','off',...
     'Name','Real Time Data',...
     'Color',[0 0 0],'Visible','off');
 
-% Set axes
+% Set axes using figure handle
 axesHandle = axes('Parent',figureHandle,...
     'YGrid','on',...
     'YColor',[0.9725 0.9725 0.9725],...
     'XGrid','on',...
     'XColor',[0.9725 0.9725 0.9725],...
     'Color',[.1 .1 .1]);
-
 hold on;
 
+% Create 'magnitude' number of plots. If limit==0, the plot will connect
+% the data points; else dots will be used.
 for i=1:magnitude
     if (limit~=0)
         plotHandle(i) = plot(axesHandle,X,Y,'.','DisplayName', strcat('Figure ',num2str(i)),'Color',[rand, rand, 1]);
@@ -77,6 +68,7 @@ for i=1:magnitude
     end
 end
 
+% Define the limits of the x-axis
 xlim(axesHandle,[min(0) max(limit)+1]);
 
 % Create xlabel
@@ -94,13 +86,15 @@ set(h,'TextColor', [1 1 1])
 
 
 
-
 %% Reads values and plots them 
 
 try  % Everything within 'try' will execute as long as there are no errors
     
 while (1==1)
+    
     for i=1:magnitude
+        
+        % Read values from Serial connection
         if (limit~=0)
             index = fscanf(s,'%f');
             X(index+1,i) = index;
@@ -112,12 +106,14 @@ while (1==1)
              Y(count+1,i) = fscanf(s,'%f');
         end
         
+        % Plot the data
         set(plotHandle(i),'YData',Y(:,i),'XData',X(:,i));
         set(figureHandle,'Visible','on');
     end
     
+    % Redefine x-axis limits to create shifting axis in time
     if (limit == 0)
-        xlim(axesHandle,[count-100 count+.01]);
+        xlim(axesHandle,[count-100 count+.01]);  
     end
     
     pause(.001);

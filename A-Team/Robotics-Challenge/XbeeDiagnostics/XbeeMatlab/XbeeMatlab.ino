@@ -13,6 +13,10 @@ Summary
 
 
 
+#include <XBee.h>
+XBee xbee = XBee();
+
+
 // filterSamples should  be an odd number, no smaller than 3 (<<# sensitive, #<< insensitive)
 #define filterSamples  7          
 #define filterSamples2  17
@@ -24,36 +28,39 @@ int sensSmoothArray2 [filterSamples2];
 // variables for sensor data
 int rawData, smoothData;  
 int rawData2, smoothData2;  
+int currentHeading = 0, currentRSSI = 0;
+
 
 
 
 
 void setup() {
   Serial.begin(57600); 
+  Serial1.begin(57600);
+  xbee.setSerial(Serial1);
 }
+
+
 
 
 void loop() {
-    int sens = analogRead(0);
-    int x = millis()%100;
+  
+    Retrieve();
     
-   // Serial.println(x);
-    Serial.println(sens);
+    // Serial.println(currentHeading);
+    Serial.println(currentRSSI);
     
-    smoothData = digitalSmooth(sens, sensSmoothArray);
-   // Serial.println(x);
+    smoothData = digitalSmooth(currentRSSI, sensSmoothArray);
+    // Serial.println(currentHeading);
     Serial.println(smoothData);
     
-    smoothData2 = digitalSmooth2(sens, sensSmoothArray2);
-    //Serial.println(x);
+    smoothData2 = digitalSmooth2(currentRSSI, sensSmoothArray2);
+    //Serial.println(currentHeading);
     Serial.println(smoothData2);
 
-    delay(100);
+    
+    delay(100);  // Gives Matlab time to process data
 }
-
-
-
-
 
 
 
@@ -62,11 +69,39 @@ void loop() {
 ////////////////Local Functions//////////////////////
 /////////////////////////////////////////////////////
 
+// Receive transmitted data and store it
+
+void Retrieve(){
+  xbee.readPacket(50);    //Wait 50 to receive packet
+  if (xbee.getResponse().isAvailable())     //Execute only if packet found
+  {
+    if (xbee.getResponse().getApiId() == RX_16_RESPONSE) 
+    {
+      xbee.getResponse().getRx16Response(rx16);
+      
+      //Store the transmitted data and RSSI
+      currentHeading = rx16.getData(0);
+      currentRSSI = abs(rx16.getRssi()-100);     
+    }
+  }
+}
 
 
 
 
-//Digital filter used to smooth the input data. 
+/* digitalSmooth
+ Paul Badger 2007
+ A digital smoothing filter for smoothing sensor jitter 
+ This filter accepts one new piece of data each time through a loop, which the 
+ filter inputs into a rolling array, replacing the oldest data with the latest reading.
+ The array is then transferred to another array, and that array is sorted from low to high. 
+ Then the highest and lowest %15 of samples are thrown out. The remaining data is averaged
+ and the result is returned.
+
+ Every sensor used with the digitalSmooth function needs to have its own array to hold 
+ the raw sensor values. This array is then passed to the function, for it's use.
+ This is done with the name of the array associated with the particular sensor.
+ */
 
 int digitalSmooth2(int rawIn, int *sensSmoothArray2){     // "int *sensSmoothArray" passes an array to the function - the asterisk indicates the array name is a pointer
   int j, k, temp, top, bottom;
@@ -112,9 +147,6 @@ int digitalSmooth2(int rawIn, int *sensSmoothArray2){     // "int *sensSmoothArr
 }
 
 
-          
-          
-//Digital filter used to smooth the input data. 
 
 int digitalSmooth(int rawIn, int *sensSmoothArray){     // "int *sensSmoothArray" passes an array to the function - the asterisk indicates the array name is a pointer
   int j, k, temp, top, bottom;
