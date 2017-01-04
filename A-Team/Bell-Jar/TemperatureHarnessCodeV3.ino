@@ -1,4 +1,4 @@
-//Updated for SD Card and RTC 12/01/2016
+//Updated for SD Card and RTC 01/04/2017
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -43,7 +43,8 @@ Sd2Card card;
 SdVolume volume;
 SdFile root;
 File fileType;
-String fileName;
+String fileName = "BJarLog1.csv";
+
 //const int chipSelect = 8;
    
 void setup(void)
@@ -218,9 +219,8 @@ void setup(void)
 //    }
 //  }
   //Create SD file
-  fileName = "Log00001.csv";
   Serial.println(fileName);
-  fileType = SD.open("Log00001.csv", O_CREAT | O_WRITE);
+  fileType = SD.open(fileName, O_CREAT | O_WRITE);
   fileType.println("Time(s),Pressure,T0,T1,T2,T3,T4,T5,T6");
   //close file
   fileType.close();
@@ -350,7 +350,7 @@ void SDSave(float timer, float PSI){
   //Close SPI bus to RTC
   digitalWrite(8,LOW);
   //Open File and save data
-  fileType = SD.open("Log00001.csv",FILE_WRITE);
+  fileType = SD.open(fileName,FILE_WRITE);
   fileType.print(timer);
   fileType.print(" ,");
   fileType.print(psi);
