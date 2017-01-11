@@ -137,13 +137,13 @@ void loop()
     }
     
   // If HEADING was declared, Show calculated heading Data 250 times
-  #ifdef HEADING
+  #elif HEADING
     Serial.println("Printing Corrected Magnetic Heading Data");
     for(int l = 0; l < 250; l++){
       printHeading(); //Changed to calculated magnetic values for ease of use
       delay(PRINT_SPEED);
     }
-    
+  #endif
 }
 
 // Function that produces offset and scale factors from magnetic readings
@@ -260,4 +260,3 @@ void printHeading()
 
   Serial.print("Heading: "); Serial.println(heading, 2);
 }
-
