@@ -1,4 +1,5 @@
 //Updated for SD Card and RTC 01/04/2017
+//Updated for Time and Date stamp 01/24/2017
 
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -191,42 +192,16 @@ void setup(void)
   Serial.println();
   */
 
-  //////////////////////////////////////////////////////////////////////
+  //Create SD file
   //Begin SD at CS 8
   SD.begin(8);
-
-//DEFUNCT SD Code
-//  if(!card.init(SPI_HALF_SPEED, 8))
-//  {
-//    Serial.println("Not working...");
-//  }
-//  if(!volume.init(card))
-//  {
-//    Serial.println("Could not find FAT16/FAT32 partition. \nMake sure you've formatted the card");
-//    return;
-//  }
-//  if(!SD.begin(8)) Serial.println("You're doing something wrong...");
-//  Serial.println("Starting file check.");
-//  char filename[] = "Log00001.csv";
-//  for(uint8_t i = 0; i < 100; i++){
-//    filename[6] = i/10 + '0';
-//    filename[7] = i % 10 + '0';
-//    if(!SD.exists(filename)){
-//      fileType = SD.open(filename, O_CREAT | O_WRITE);
-//      fileName = filename;
-//      Serial.println(fileName);
-//      break;
-//    }
-//  }
-  //Create SD file
   Serial.println(fileName);
   fileType = SD.open(fileName, O_CREAT | O_WRITE);
-  fileType.println("Time(s),Pressure,T0,T1,T2,T3,T4,T5,T6");
+  fileType.println("Date,Time,Run_Time(ms),Pressure,T0,T1,T2,T3,T4,T5,T6");
   //close file
   fileType.close();
   //Turn off SPI to SD
   digitalWrite(8,HIGH);
-  
   //Begin RTC Set-up
   // Call rtc.begin([cs]) to initialize the library
   // The chip-select pin should be sent as the only parameter
@@ -247,6 +222,7 @@ void setup(void)
   d = rtc.day();
   y = rtc.year();
   rtc.setTime(0,0,h,d,da,m,y);
+  //////////////////////////////////////////////////////////////////////
   
 }
 
@@ -335,7 +311,7 @@ void printData(DeviceAddress deviceAddress)
   printTemperature(deviceAddress);
   Serial.println();
 }
-void SDSave(float timer, float PSI){
+void SDSave(String Date, String Time, float timer, float PSI){
   //Collect Temperature data
   float TEMP0, TEMP1, TEMP2, TEMP3, TEMP4, TEMP5, TEMP6;
   TEMP0 = sensors.getTempC(Temp0);
@@ -345,12 +321,18 @@ void SDSave(float timer, float PSI){
   TEMP4 = sensors.getTempC(Temp4);
   TEMP5 = sensors.getTempC(Temp5);
   TEMP6 = sensors.getTempC(Temp6);
+
+  
   //Open SPI bus to SD Card
   digitalWrite(A1,HIGH);
   //Close SPI bus to RTC
   digitalWrite(8,LOW);
   //Open File and save data
   fileType = SD.open(fileName,FILE_WRITE);
+  fileType.print(Date);
+  fileType.print(" ,");
+  fileType.print(Time);
+  fileType.print(" ,");
   fileType.print(timer);
   fileType.print(" ,");
   fileType.print(psi);
@@ -381,18 +363,32 @@ void SDSave(float timer, float PSI){
 void loop(void)
 { 
   //Time set-up
+  digitalWrite(DS13074_CS_PIN,LOW);
   static int8_t lastSecond = -1;
   // Call rtc.update() to update all rtc.seconds(), rtc.minutes(),
   // etc. return functions.
   rtc.update();
-  if (rtc.second() != lastSecond) // If the second has changed
-  {
-    printTime(); // Print the new time
-    
-    lastSecond = rtc.second(); // Update lastSecond value
-  }
+//  if (rtc.second() != lastSecond) // If the second has changed
+//  {
+//    printTime(); // Print the new time
+//    
+//    lastSecond = rtc.second(); // Update lastSecond value
+//  }
+//  float timer = (60*rtc.minute())+rtc.second(); //Counts seconds
+  int s,m,mi,h,d,da,y;
+  s = rtc.second();
+  mi = rtc.minute();
+  m = rtc.month();
+  da = rtc.date();
+  h = rtc.hour();
+  d = rtc.day();
+  y = rtc.year();
+ 
+  String Date = String(m) + "/" + String(da) + "/" + String(y);
+  String Time = String(h) + ":" + String(mi) + ":" + String(s);
   
-  float timer = (60*rtc.minute())+rtc.second();
+  digitalWrite(DS13074_CS_PIN,HIGH);
+  float timer = millis();
   // get pressure
   pressure = analogRead(A4);
   pressureV = pressure*(5.0/1023);
@@ -428,8 +424,6 @@ void loop(void)
   printTemperatureLCD(Temp6,14,3);
 
   //save data to SD Card
-  SDSave(timer, psi);
+  SDSave(Date, Time, timer, psi);
   delay(200);
-  
-
 }
