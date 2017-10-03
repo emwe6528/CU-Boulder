@@ -210,9 +210,10 @@ void setup(void)
   // predefined time.
   rtc.autoTime();
   // Update time/date values
-  rtc.update();
+  //rtc.update();
 /////////////////////////////////////////////////////////////////////////////////////
 //initialize starting time for RTC
+   /*
   rtc.autoTime();
   rtc.update();
   int m,mi,h,d,da,y;
@@ -222,6 +223,7 @@ void setup(void)
   d = rtc.day();
   y = rtc.year();
   rtc.setTime(0,0,h,d,da,m,y);
+  */
   //////////////////////////////////////////////////////////////////////
   
 }
@@ -268,6 +270,7 @@ void printResolution(DeviceAddress deviceAddress)
 }
 */
 //Function to pull time from RTC 
+/*
 void printTime()
 {
   Serial.print(String(rtc.hour()) + ":"); // Print hour
@@ -300,7 +303,7 @@ void printTime()
                  String(rtc.month()) + "/"); // Print month
 #endif
   Serial.println(String(rtc.year()));        // Print year
-}
+*/
 
 // main function to print information about a device
 void printData(DeviceAddress deviceAddress)
