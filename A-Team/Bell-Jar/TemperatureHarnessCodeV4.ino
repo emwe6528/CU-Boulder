@@ -210,18 +210,18 @@ void setup(void)
   // predefined time.
   rtc.autoTime();
   // Update time/date values
-  rtc.update();
+  //rtc.update();
 /////////////////////////////////////////////////////////////////////////////////////
 //initialize starting time for RTC
-  rtc.autoTime();
-  rtc.update();
-  int m,mi,h,d,da,y;
-  m = rtc.month();
-  da = rtc.date();
-  h = rtc.hour();
-  d = rtc.day();
-  y = rtc.year();
-  rtc.setTime(0,0,h,d,da,m,y);
+  //rtc.autoTime();
+  //rtc.update();
+  //int m,mi,h,d,da,y;
+  //m = rtc.month();
+  //da = rtc.date();
+  //h = rtc.hour();
+  //d = rtc.day();
+  //y = rtc.year();
+  //rtc.setTime(0,0,h,d,da,m,y);
   //////////////////////////////////////////////////////////////////////
   
 }
@@ -267,7 +267,8 @@ void printResolution(DeviceAddress deviceAddress)
   Serial.println();    
 }
 */
-//Function to pull time from RTC 
+//Function to pull time from RTC
+/*
 void printTime()
 {
   Serial.print(String(rtc.hour()) + ":"); // Print hour
@@ -284,6 +285,7 @@ void printTime()
     if (rtc.pm()) Serial.print(" PM"); // Returns true if PM
     else Serial.print(" AM");
   }
+  */
   
   Serial.print(" | ");
 
